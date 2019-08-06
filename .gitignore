@@ -1,0 +1,7 @@
+.idea
+.vscode
+node_modules
+logs
+.npmignore
+dist
+config.js
