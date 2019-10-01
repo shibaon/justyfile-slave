@@ -1,6 +1,15 @@
 import { Application } from '../../Application'
-import { Response, RequestHandler } from 'express'
-import path from 'path'
+import { Response, Request } from 'express'
+
+export interface IQueryData {
+    params: Record<string, any>
+    req: Request
+    res: Response
+}
+
+export class AccessDeniedException extends Error { }
+
+export class NotFoundException extends Error { }
 
 export class AbstractController {
 
@@ -36,12 +45,20 @@ export class AbstractController {
 
     public accessDeniedResponse(res: Response) { return AbstractController.accessDeniedResponse(res) }
 
-    protected post(url: string, method: RequestHandler) {
-        this.app.http.post(url, method.bind(this))
-    }
-
-    protected get(url: string, method: RequestHandler) {
-        this.app.http.get(url, method.bind(this))
+    protected onQuery(url: string, callback: (data: IQueryData) => Promise<any>) {
+        this.app.http.post(url, async (req, res) => {
+            try {
+                const result = await callback.call(this, { params: req.body, req, res })
+                return this.successResponse(res, { result })
+            } catch (err) {
+                if (err instanceof AccessDeniedException) {
+                    return this.accessDeniedResponse(res)
+                } else if (err instanceof NotFoundException) {
+                    return this.notFoundResponse(res)
+                }
+                return this.errorResponse(res, err.message)
+            }
+        })
     }
 
 

@@ -1,3 +1,8 @@
+interface String {
+    sha512(): string
+    md5(): string
+}
+
 interface IConfig {
     listen: number
     logdir: string
@@ -6,4 +11,5 @@ interface IConfig {
         user: string
         password: string
     }
+    secret: string
 }

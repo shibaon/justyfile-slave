@@ -5,3 +5,5 @@ logs
 .npmignore
 dist
 config.js
+uploads
+files
