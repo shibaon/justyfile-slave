@@ -1,3 +1,4 @@
+import path from 'path'
 import Express from 'express'
 import { AbstractConsoleCommand } from './Base/Console/AbstractConsoleCommand'
 import { DbService } from './Database/Service/DbService'
@@ -10,6 +11,7 @@ import { CreateMigrationCommand } from './Database/Console/CreateMigrationComman
 import { MigrateCommand } from './Database/Console/MigrateCommand'
 import { MigrateUndoCommand } from './Database/Console/MigrateUndoCommand'
 import { UploadController } from './File/Controller/UploadController'
+import { DownloadController } from './File/Controller/DownloadController'
 
 export class Application {
     public http!: Express.Express
@@ -29,8 +31,13 @@ export class Application {
     // Controllers
     public healthController!: HealthController
     public uploadController!: UploadController
+    public downloadController!: DownloadController
 
     constructor(public readonly config: IConfig) { }
+
+    public get rootDir() {
+        return path.dirname(__dirname)
+    }
 
     public async run() {
         this.initializeServices()
@@ -78,6 +85,7 @@ export class Application {
     protected initializeControllers() {
         this.healthController = new HealthController(this)
         this.uploadController = new UploadController(this)
+        this.downloadController = new DownloadController(this)
     }
 
 }

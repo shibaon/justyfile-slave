@@ -43,7 +43,7 @@ export class UploadController extends AbstractApiController {
         const file = req.fileEntity
         if (!req.file) {
             return this.errorResponse(res, 'File was not uploaded :-(')
-        }
+        }   
         if (!file) {
             removeTempFile()
             return this.errorResponse(res, 'Something went wrong :-(')

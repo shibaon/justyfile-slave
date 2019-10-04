@@ -2,11 +2,16 @@ import { AbstractService } from '../../Base/Service/AbstractService'
 import { File } from '../Entity/File'
 import fs from 'fs'
 import path from 'path'
+import { DownloadToken } from '../Entity/DownloadToken'
 
 export class FileService extends AbstractService {
 
     public get fileRepository() {
         return this.app.dbService.connection.getRepository(File)
+    }
+
+    public get downloadTokenRepository() {
+        return this.app.dbService.connection.getRepository(DownloadToken)
     }
 
     public getByUploadToken(token: string) {
@@ -29,6 +34,14 @@ export class FileService extends AbstractService {
         file.uploadToken = null
         file.uri = destPath
         return await this.fileRepository.save(file)
+    }
+
+    public async getDownloadToken(tokenId: string) {
+        return tokenId ? this.downloadTokenRepository.findOne(tokenId) : undefined
+    }
+
+    public async getById(id: number) {
+        return id ? this.fileRepository.findOne(id) : undefined
     }
 
 }
