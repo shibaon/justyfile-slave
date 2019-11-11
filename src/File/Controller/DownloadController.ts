@@ -19,7 +19,7 @@ export class DownloadController extends AbstractApiController {
         if (!token) {
             return this.notFoundResponse(res)
         }
-        //await this.app.fileService.downloadTokenRepository.delete(token)
+        await this.app.fileService.downloadTokenRepository.delete(token)
         const file = await this.app.fileService.getById(token.fileId)
         const filename = req.params[0]
         if (!file || !file.uri || filename !== file.name) {

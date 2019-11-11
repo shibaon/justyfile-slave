@@ -19,7 +19,7 @@ export class UploadController extends AbstractApiController {
         this.app.http.post('/upload', this.startUpload.bind(this), multer({ dest: 'uploads' }).single('file'), this.upload.bind(this))
     }
 
-    public async uploadOptions(req: Request, res: Response, next: CallableFunction) {
+    public uploadOptions(req: Request, res: Response, next: CallableFunction) {
         this.sendOriginHeader(req, res)
         next()
     }
@@ -55,6 +55,7 @@ export class UploadController extends AbstractApiController {
         file.uploadToken = null
         await this.app.fileService.fileRepository.save(file)
         await this.app.fileService.uploadFile(file, req.file.path)
+        res.send()
     }
 
     public async preUpload(data: IApiQueryData) {
