@@ -3,8 +3,11 @@ import { File } from '../Entity/File'
 import fs from 'fs'
 import path from 'path'
 import { DownloadToken } from '../Entity/DownloadToken'
+import { promisify } from 'util'
 
 export class FileService extends AbstractService {
+    protected interval: NodeJS.Timeout|undefined = undefined
+    protected intervalRunning = false
 
     public get fileRepository() {
         return this.app.dbService.connection.getRepository(File)
@@ -12,6 +15,30 @@ export class FileService extends AbstractService {
 
     public get downloadTokenRepository() {
         return this.app.dbService.connection.getRepository(DownloadToken)
+    }
+
+    public initCrud() {
+        this.interval = setInterval(async () => {
+            if (!this.intervalRunning) {
+                this.intervalRunning = true
+                try {
+                    await this.removeFiles()
+                } catch (err) {
+                    this.app.loggerService.write(err)
+                }
+                this.intervalRunning = false
+            }
+        }, 5000)
+    }
+
+    public async removeFiles() {
+        const files = await this.fileRepository.find({ removeMark: true })
+        for (const f of files) {
+            if (f.uri) {
+                await promisify(fs.unlink)(f.uri)
+            }
+            await this.fileRepository.delete(f)
+        }
     }
 
     public getByUploadToken(token: string) {
@@ -26,11 +53,11 @@ export class FileService extends AbstractService {
 
         for (const p of destDir) {
             iterator += p + path.sep
-            if (!fs.existsSync(iterator)) {
-                fs.mkdirSync(iterator)
+            if (!await promisify(fs.exists)(iterator)) {
+                await promisify(fs.mkdir)(iterator)
             }
         }
-        fs.renameSync(url, destPath)
+        await promisify(fs.rename)(url, destPath)
         file.uploadToken = null
         file.uri = destPath
         return await this.fileRepository.save(file)

@@ -12,6 +12,7 @@ import { MigrateCommand } from './Database/Console/MigrateCommand'
 import { MigrateUndoCommand } from './Database/Console/MigrateUndoCommand'
 import { UploadController } from './File/Controller/UploadController'
 import { DownloadController } from './File/Controller/DownloadController'
+import { RemoveController } from './File/Controller/RemoveController'
 
 export class Application {
     public http!: Express.Express
@@ -32,6 +33,7 @@ export class Application {
     public healthController!: HealthController
     public uploadController!: UploadController
     public downloadController!: DownloadController
+    public removeController!: RemoveController
 
     constructor(public readonly config: IConfig) { }
 
@@ -66,6 +68,7 @@ export class Application {
         this.http.listen(this.config.listen, () => console.log(`Listening on port ${this.config.listen}`))
 
         this.initializeControllers()
+        this.initializeCruds()
     }
 
     protected initializeServices() {
@@ -86,6 +89,11 @@ export class Application {
         this.healthController = new HealthController(this)
         this.uploadController = new UploadController(this)
         this.downloadController = new DownloadController(this)
+        this.removeController = new RemoveController(this)
+    }
+
+    protected initializeCruds() {
+        this.fileService.initCrud()
     }
 
 }
