@@ -6,4 +6,5 @@ module.exports = {
         user: 'db user',
         password: 'db password',
     },
+    secret: 'asdasdass',
 }
